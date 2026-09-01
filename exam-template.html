@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Systems II - اختبار</title>
+<style>
+  :root{
+    --purple-a: #4b2e8f;
+    --purple-b: #7a2f6e;
+    --red-c: #c0392b;
+    --card-bg: #ffffff;
+    --page-bg: #f4f5f8;
+    --text-main: #1c1c28;
+    --text-sub: #5b5b6b;
+    --correct: #1e8e3e;
+    --wrong: #d93025;
+    --border: #e2e2ea;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+    background: var(--page-bg);
+    color: var(--text-main);
+  }
+  .topbar{
+    position: sticky;
+    top:0;
+    z-index: 50;
+    background: linear-gradient(120deg, var(--purple-a), var(--purple-b) 55%, var(--red-c));
+    color:#fff;
+    padding: 14px 18px 40px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .topbar-inner{
+    max-width: 760px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap: wrap;
+    gap:10px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:700;
+    font-size:1.15rem;
+  }
+  .brand-icon{
+    width:26px;height:26px;
+    display:inline-flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.18);
+    border-radius:6px;
+    font-size:0.9rem;
+  }
+  .timer-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .timer-box{
+    background: rgba(255,255,255,0.95);
+    color:#111;
+    border:2px solid #e74c3c;
+    border-radius: 8px;
+    padding:6px 14px;
+    font-weight:700;
+    font-size:0.95rem;
+    min-width: 118px;
+    text-align:center;
+  }
+  .timer-box.overtime{
+    border-color:#1e8e3e;
+    color:#1e8e3e;
+  }
+  .hide-btn{
+    background: rgba(255,255,255,0.85);
+    border:none;
+    color:#333;
+    padding:6px 14px;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
+  .container{
+    max-width: 760px;
+    margin: 10px auto 40px;
+    padding: 0 14px;
+  }
+  .status-bar{
+    background:#fff;
+    border-radius:12px;
+    padding:12px 16px;
+    margin-bottom:18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    font-size:0.92rem;
+    color: var(--text-sub);
+  }
+  .status-bar b{color:var(--text-main);}
+  .finish-btn{
+    background: var(--purple-a);
+    color:#fff;
+    border:none;
+    padding:10px 22px;
+    border-radius: 24px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.95rem;
+  }
+  .finish-btn:hover{opacity:0.92;}
+
+  .qcard{
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 20px 20px 18px;
+    margin-bottom: 26px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    border: 1px solid var(--border);
+  }
+  .qhead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .qnum{
+    font-size:1.3rem;
+    font-weight:800;
+    color: var(--purple-a);
+  }
+  .qtools{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .icon-btn{
+    width:34px;height:34px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:#f7f7fb;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-size:1rem;
+    transition: background 0.15s;
+    flex-shrink:0;
+  }
+  .icon-btn:hover{background:#ececf5;}
+  .icon-btn.active{background:#e6e0fb; border-color:var(--purple-a);}
+  .qstatus{
+    font-size:0.8rem;
+    color: var(--text-sub);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .qstatus .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#bbb;
+    display:inline-block;
+  }
+  .qstatus.answered.correct .dot{background:var(--correct);}
+  .qstatus.answered.wrong .dot{background:var(--wrong);}
+  .qtext{
+    font-size:1.05rem;
+    line-height:1.55;
+    margin: 6px 0 16px;
+    font-weight:500;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:9px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    transition: background 0.15s;
+  }
+  .option:hover{background:#f7f7fb;}
+  .option input[type=radio]{
+    margin-top:3px;
+    width:17px;height:17px;
+    accent-color: var(--purple-a);
+    flex-shrink:0;
+    cursor:pointer;
+  }
+  .option label{
+    cursor:pointer;
+    line-height:1.5;
+    flex:1;
+  }
+  .option-letter{font-weight:700;margin-right:4px;}
+  .option.disabled{cursor:default;}
+  .option.correct-answer{
+    background: #e6f6ea;
+    border: 1px solid var(--correct);
+  }
+  .option.wrong-answer{
+    background: #fdeceb;
+    border: 1px solid var(--wrong);
+  }
+  .feedback{
+    margin-top:12px;
+    padding:9px 12px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:0.9rem;
+    display:none;
+  }
+  .feedback.correct{
+    display:block;
+    background:#e6f6ea;
+    color: var(--correct);
+  }
+  .feedback.wrong{
+    display:block;
+    background:#fdeceb;
+    color: var(--wrong);
+  }
+  .qfoot{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:12px;
+  }
+  .clear-link{
+    background:none;
+    border:none;
+    color: var(--purple-a);
+    text-decoration:underline;
+    cursor:pointer;
+    font-size:0.88rem;
+    padding:0;
+  }
+  .clear-link:disabled{
+    color:#aaa;
+    cursor:not-allowed;
+    text-decoration:none;
+  }
+  .match-table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  .match-table td{
+    padding:8px 6px;
+    vertical-align:middle;
+    border-bottom:1px solid #f0f0f5;
+  }
+  .match-left{
+    font-weight:500;
+    width:48%;
+  }
+  .match-select{
+    width:100%;
+    padding:8px 8px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-size:0.92rem;
+    background:#fff;
+    color: var(--text-main);
+  }
+  .match-select.correct-answer{border-color:var(--correct); background:#e6f6ea;}
+  .match-select.wrong-answer{border-color:var(--wrong); background:#fdeceb;}
+
+  .fill-wrap{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .fill-input{
+    flex:1;
+    min-width:180px;
+    padding:9px 12px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-size:0.95rem;
+    color: var(--text-main);
+    background:#fff;
+  }
+  .fill-input:focus{outline:2px solid var(--purple-a); outline-offset:1px;}
+  .fill-input:disabled{
+    background:#f7f7fb;
+    color: var(--text-main);
+  }
+  .fill-input.correct-answer{border-color:var(--correct); background:#e6f6ea;}
+  .fill-input.wrong-answer{border-color:var(--wrong); background:#fdeceb;}
+  .check-btn{
+    background: var(--purple-a);
+    color:#fff;
+    border:none;
+    padding:9px 18px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.9rem;
+    flex-shrink:0;
+  }
+  .check-btn:hover{opacity:0.92;}
+  .check-btn:disabled{
+    background:#bbb;
+    cursor:not-allowed;
+  }
+  .correct-reveal{
+    font-size:0.85rem;
+    color: var(--text-sub);
+    margin-top:8px;
+  }
+  .notice-box{
+    background:#fff8e1;
+    border:1px solid #f0c419;
+    border-radius:12px;
+    padding:14px 16px;
+    margin-bottom:26px;
+    color:#7a5b00;
+    font-weight:600;
+    font-size:0.95rem;
+    line-height:1.6;
+  }
+
+  .qnum-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .flag-btn{
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    line-height:0;
+  }
+  .flag-btn svg{
+    width:20px;
+    height:20px;
+    display:block;
+  }
+  .flag-pole{
+    fill:#1c1c28;
+  }
+  .flag-banner{
+    fill:none;
+    stroke:#1c1c28;
+    stroke-width:1.6;
+    stroke-linejoin:round;
+  }
+  .flag-btn.flagged .flag-banner{
+    fill:#1c1c28;
+  }
+
+  .qtype-badge{
+    display:inline-block;
+    font-size:0.7rem;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:12px;
+    background:#eee;
+    color:#777;
+    margin-bottom:8px;
+  }
+
+  .footer-uni{
+    text-align:center;
+    padding: 22px 10px 40px;
+    color:#8a8a95;
+    font-size:0.85rem;
+  }
+
+  .end-actions{
+    display:flex;
+    justify-content:center;
+    padding: 6px 10px 10px;
+  }
+  .end-actions .finish-btn{
+    padding: 14px 40px;
+    font-size:1.05rem;
+  }
+
+  .nav-panel-actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+  }
+  .nav-panel-actions .finish-btn,
+  .nav-panel-actions .restart-btn{
+    width:100%;
+    text-align:center;
+  }
+  .restart-btn{
+    background:#c0392b;
+    color:#fff;
+    border:none;
+    padding:10px 22px;
+    border-radius:24px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:0.95rem;
+  }
+  .restart-btn:hover{opacity:0.92;}
+
+  /* Arabic RTL rendering inside a question when translated */
+  .rtl-block{
+    direction: rtl;
+    text-align: right;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  }
+
+  @media (max-width:480px){
+    .qcard{padding:16px 14px;}
+    .timer-box{min-width:100px; font-size:0.85rem;}
+  }
+
+  /* ---- Question navigator (blue button + slide panel) ---- */
+  .nav-toggle-btn{
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 200;
+    background: #1a2f7a;
+    color:#fff;
+    border:none;
+    width: 25.5px;
+    height: 60px;
+    border-radius: 0;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+    gap: 3px;
+    cursor:pointer;
+    box-shadow: -2px 2px 10px rgba(0,0,0,0.25);
+    transition: right 0.28s ease;
+    padding: 0;
+  }
+  .nav-toggle-btn::before{
+    content:"";
+    position:absolute;
+    left:-25.5px;
+    top:0;
+    width: 51px;
+    height: 60px;
+    background: #1a2f7a;
+    border-radius: 50%;
+    z-index:-1;
+    clip-path: inset(0 25.5px 0 0);
+  }
+  .nav-toggle-btn .bar{
+    width: 12px;
+    height: 3px;
+    background:#fff;
+    border-radius: 2px;
+  }
+  .nav-toggle-btn.shifted{
+    right: 33.333vw;
+  }
+  .nav-toggle-btn:hover{ background:#152668; }
+  .nav-toggle-btn:hover::before{ background:#152668; }
+
+  .nav-overlay{
+    position: fixed;
+    inset:0;
+    background: rgba(0,0,0,0.28);
+    z-index: 150;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.25s ease;
+  }
+  .nav-overlay.open{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .nav-panel{
+    position: fixed;
+    top:0;
+    right: 0;
+    height: 100vh;
+    width: 33.333vw;
+    min-width: 260px;
+    max-width: 420px;
+    background: #fff;
+    z-index: 180;
+    box-shadow: -4px 0 18px rgba(0,0,0,0.22);
+    transform: translateX(100%);
+    transition: transform 0.28s ease;
+    overflow-y: auto;
+    padding: 18px 14px 30px;
+  }
+  .nav-panel.open{
+    transform: translateX(0);
+  }
+  .nav-panel-title{
+    font-weight:800;
+    font-size:1rem;
+    color: var(--purple-a);
+    margin-bottom: 14px;
+    padding-bottom:10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-grid{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 4px 4px;
+  }
+  .nav-tile{
+    background:#f4f4fa;
+    border:1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 2px;
+    width: 28.5px;
+    text-align:center;
+    font-size: 0.8rem;
+    font-weight:700;
+    cursor:pointer;
+    color: var(--text-main);
+    transition: background 0.15s, border-color 0.15s;
+    user-select:none;
+    flex: 0 0 auto;
+  }
+  .nav-tile:hover{
+    background:#e9e7fb;
+    border-color: var(--purple-a);
+  }
+  .nav-tile.answered-correct{
+    background:#e6f6ea;
+    border-color: var(--correct);
+    color: var(--correct);
+  }
+  .nav-tile.answered-wrong{
+    background:#fdeceb;
+    border-color: var(--wrong);
+    color: var(--wrong);
+  }
+  .nav-tile{
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-tile.flagged::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:0;
+    height:0;
+    border-left: 9px solid #b03a3a;
+    border-top: 9px solid transparent;
+  }
+
+  @media (max-width: 700px){
+    .nav-panel{ width: 66vw; }
+    .nav-toggle-btn.shifted{ right: 66vw; }
+  }
+</style>
+</head>
+<body>
+
+<button class="nav-toggle-btn" id="navToggleBtn" type="button" title="قائمة الأسئلة">
+  <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+</button>
+<div class="nav-overlay" id="navOverlay"></div>
+<div class="nav-panel" id="navPanel">
+  <div class="nav-panel-title">Questions / الأسئلة</div>
+  <div class="nav-grid" id="navGrid"></div>
+  <div class="nav-panel-actions">
+    <button class="finish-btn" id="finishBtnPanel" type="button">Finish attempt ...</button>
+    <button class="restart-btn" id="restartBtn" type="button">Restart Exam</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand" id="brandText"><span class="brand-icon">📋</span> تحكم 2 &nbsp;|&nbsp; Control Systems II اختبار</div>
+    <div class="timer-wrap">
+      <div class="timer-box" id="timerBox">Time left 2:30:00</div>
+      <button class="hide-btn" id="hideBtn" type="button">Hide</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="status-bar">
+    <div>Answered: <b id="answeredCount">0</b> / <span id="totalCount">0</span></div>
+    <div>Score: <b id="scoreCount">0</b></div>
+  </div>
+
+  <div id="quizRoot"></div>
+
+  <div class="end-actions">
+    <button class="finish-btn" id="finishBtn" type="button">Finish attempt ...</button>
+  </div>
+
+  <div class="footer-uni" id="footerText">MU | جامعة المشرق</div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+function tr(s){ return AR[s] || s; }
+
+/* ======================= STATE ======================= */
+const STORAGE_KEY = EXAM_CONFIG.storageKey;
+const TOTAL_SECONDS = EXAM_CONFIG.durationHours*3600 + EXAM_CONFIG.durationMinutes*60;
+
+function loadSaved(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function persistState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      answers: state.answers,
+      translated: state.translated,
+      flagged: state.flagged,
+      examEndTime: examEndTime
+    }));
+  }catch(e){ /* storage unavailable, progress just won't persist */ }
+}
+
+const saved = loadSaved();
+const state = {
+  answers: (saved && saved.answers) || {},      // qIndex -> {selectedIndex or map for match, correct:bool}
+  translated: (saved && saved.translated) || {},// qIndex -> bool
+  flagged: (saved && saved.flagged) || {},      // qIndex -> bool
+  score: 0
+};
+let examEndTime = (saved && saved.examEndTime) || (Date.now() + TOTAL_SECONDS*1000);
+if(!saved) persistState();
+
+let overtimeSeconds = 0;
+let inOvertime = false;
+let timerInterval = null;
+
+function fmtTime(totalSec){
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = Math.floor(totalSec%60);
+  return String(h).padStart(1,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function tickTimer(){
+  const box = document.getElementById('timerBox');
+  const diffMs = examEndTime - Date.now();
+  if(diffMs > 0){
+    inOvertime = false;
+    box.classList.remove('overtime');
+    box.textContent = 'Time left ' + fmtTime(Math.ceil(diffMs/1000));
+  } else {
+    inOvertime = true;
+    overtimeSeconds = Math.floor(-diffMs/1000);
+    box.classList.add('overtime');
+    box.textContent = 'Time elapsed ' + fmtTime(overtimeSeconds);
+  }
+}
+
+/* ======================= RENDER ======================= */
+const root = document.getElementById('quizRoot');
+
+function optionLetter(i){ return String.fromCharCode(97+i); } // a,b,c...
+
+function buildFlagBtn(idx){
+  const btn = document.createElement('button');
+  btn.className = 'flag-btn';
+  btn.type = 'button';
+  btn.id = 'flagbtn'+idx;
+  btn.title = 'Flag question / علّم للرجوع لاحقًا';
+  btn.innerHTML =
+    '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect class="flag-pole" x="13.4" y="2" width="1.6" height="16" rx="0.6"></rect>' +
+      '<path class="flag-banner" d="M13.4 3 L4 5.7 L13.4 9.4 Z"></path>' +
+    '</svg>';
+  btn.onclick = () => toggleFlag(idx);
+  return btn;
+}
+
+function toggleFlag(idx){
+  state.flagged[idx] = !state.flagged[idx];
+  const btn = document.getElementById('flagbtn'+idx);
+  btn.classList.toggle('flagged', state.flagged[idx]);
+  const tile = document.getElementById('navtile'+idx);
+  if (tile) tile.classList.toggle('flagged', state.flagged[idx]);
+  persistState();
+}
+
+function buildMCQCard(q, idx, displayNum){
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.id = 'q'+idx;
+
+  const head = document.createElement('div');
+  head.className = 'qhead';
+
+  const numWrap = document.createElement('div');
+  numWrap.className = 'qnum-wrap';
+
+  const num = document.createElement('div');
+  num.className = 'qnum';
+  num.textContent = 'Question ' + displayNum;
+  numWrap.appendChild(num);
+  numWrap.appendChild(buildFlagBtn(idx));
+
+  head.appendChild(numWrap);
+
+  const tools = document.createElement('div');
+  tools.className = 'qtools';
+
+  const transBtn = document.createElement('button');
+  transBtn.className = 'icon-btn';
+  transBtn.type = 'button';
+  transBtn.title = 'ترجمة للعربية';
+  transBtn.textContent = '🌐';
+  transBtn.onclick = () => toggleTranslate(idx);
+  tools.appendChild(transBtn);
+
+  head.appendChild(tools);
+  card.appendChild(head);
+
+  const status = document.createElement('div');
+  status.className = 'qstatus';
+  status.id = 'status'+idx;
+  status.innerHTML = '<span class="dot"></span><span class="statustext">Not yet answered</span>';
+  card.appendChild(status);
+
+  const qtext = document.createElement('div');
+  qtext.className = 'qtext';
+  qtext.id = 'qtext'+idx;
+  qtext.textContent = q.q;
+  card.appendChild(qtext);
+
+  const opts = document.createElement('div');
+  opts.className = 'options';
+  opts.id = 'opts'+idx;
+
+  q.options.forEach((opt, oi) => {
+    const row = document.createElement('div');
+    row.className = 'option';
+    row.id = 'opt'+idx+'_'+oi;
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'q'+idx;
+    radio.id = 'radio'+idx+'_'+oi;
+    radio.value = oi;
+    radio.onchange = () => selectAnswer(idx, oi);
+
+    const label = document.createElement('label');
+    label.setAttribute('for','radio'+idx+'_'+oi);
+    label.id = 'optlabel'+idx+'_'+oi;
+    label.innerHTML = '<span class="option-letter">'+optionLetter(oi)+'.</span> <span class="opttext">'+opt+'</span>';
+
+    row.appendChild(radio);
+    row.appendChild(label);
+    opts.appendChild(row);
+  });
+  card.appendChild(opts);
+
+  const feedback = document.createElement('div');
+  feedback.className = 'feedback';
+  feedback.id = 'feedback'+idx;
+  card.appendChild(feedback);
+
+  const foot = document.createElement('div');
+  foot.className = 'qfoot';
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'clear-link';
+  clearBtn.id = 'clear'+idx;
+  clearBtn.type = 'button';
+  clearBtn.textContent = 'Clear my choice';
+  clearBtn.disabled = true;
+  clearBtn.onclick = () => clearAnswer(idx);
+  foot.appendChild(clearBtn);
+  card.appendChild(foot);
+
+  return card;
+}
+
+function buildMatchCard(q, idx, displayNum){
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.id = 'q'+idx;
+
+  const head = document.createElement('div');
+  head.className = 'qhead';
+
+  const numWrap = document.createElement('div');
+  numWrap.className = 'qnum-wrap';
+
+  const num = document.createElement('div');
+  num.className = 'qnum';
+  num.textContent = 'Question ' + displayNum + ' (Matching)';
+  numWrap.appendChild(num);
+  numWrap.appendChild(buildFlagBtn(idx));
+
+  head.appendChild(numWrap);
+
+  const tools = document.createElement('div');
+  tools.className = 'qtools';
+  const transBtn = document.createElement('button');
+  transBtn.className = 'icon-btn';
+  transBtn.type = 'button';
+  transBtn.title = 'ترجمة القائمة كاملة للعربية';
+  transBtn.textContent = '🌐';
+  transBtn.onclick = () => toggleTranslate(idx);
+  tools.appendChild(transBtn);
+  head.appendChild(tools);
+  card.appendChild(head);
+
+  const status = document.createElement('div');
+  status.className = 'qstatus';
+  status.id = 'status'+idx;
+  status.innerHTML = '<span class="dot"></span><span class="statustext">Not yet answered</span>';
+  card.appendChild(status);
+
+  const qtext = document.createElement('div');
+  qtext.className = 'qtext';
+  qtext.id = 'qtext'+idx;
+  qtext.textContent = q.q;
+  card.appendChild(qtext);
+
+  const table = document.createElement('table');
+  table.className = 'match-table';
+  table.id = 'matchtable'+idx;
+
+  // build shuffled option list once (stable via seeded order using original order; simple shuffle deterministic per idx)
+  const shuffled = q.right.map((val, i)=>({val, i})).sort((a,b)=> ((a.i*7+idx*13)%q.right.length) - ((b.i*7+idx*13)%q.right.length));
+
+  q.left.forEach((leftText, li) => {
+    const tr_ = document.createElement('tr');
+    const td1 = document.createElement('td');
+    td1.className = 'match-left';
+    td1.id = 'matchleft'+idx+'_'+li;
+    td1.textContent = leftText;
+    tr_.appendChild(td1);
+
+    const td2 = document.createElement('td');
+    const select = document.createElement('select');
+    select.className = 'match-select';
+    select.id = 'matchsel'+idx+'_'+li;
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = '-- Choose --';
+    select.appendChild(blank);
+    shuffled.forEach(item => {
+      const o = document.createElement('option');
+      o.value = item.i;
+      o.textContent = item.val;
+      o.id = 'matchopt'+idx+'_'+li+'_'+item.i;
+      select.appendChild(o);
+    });
+    select.onchange = () => selectMatchAnswer(idx, li, select.value);
+    td2.appendChild(select);
+    tr_.appendChild(td2);
+
+    table.appendChild(tr_);
+  });
+  card.appendChild(table);
+
+  const feedback = document.createElement('div');
+  feedback.className = 'feedback';
+  feedback.id = 'feedback'+idx;
+  card.appendChild(feedback);
+
+  const foot = document.createElement('div');
+  foot.className = 'qfoot';
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'clear-link';
+  clearBtn.id = 'clear'+idx;
+  clearBtn.type = 'button';
+  clearBtn.textContent = 'Clear my choices';
+  clearBtn.disabled = true;
+  clearBtn.onclick = () => clearAnswer(idx);
+  foot.appendChild(clearBtn);
+  card.appendChild(foot);
+
+  return card;
+}
+
+function buildFillCard(q, idx, displayNum){
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.id = 'q'+idx;
+
+  const head = document.createElement('div');
+  head.className = 'qhead';
+
+  const numWrap = document.createElement('div');
+  numWrap.className = 'qnum-wrap';
+
+  const num = document.createElement('div');
+  num.className = 'qnum';
+  num.textContent = 'Question ' + displayNum;
+  numWrap.appendChild(num);
+  numWrap.appendChild(buildFlagBtn(idx));
+
+  head.appendChild(numWrap);
+
+  const tools = document.createElement('div');
+  tools.className = 'qtools';
+
+  const transBtn = document.createElement('button');
+  transBtn.className = 'icon-btn';
+  transBtn.type = 'button';
+  transBtn.title = 'ترجمة للعربية';
+  transBtn.textContent = '🌐';
+  transBtn.onclick = () => toggleTranslate(idx);
+  tools.appendChild(transBtn);
+
+  head.appendChild(tools);
+  card.appendChild(head);
+
+  const badge = document.createElement('div');
+  badge.className = 'qtype-badge';
+  badge.textContent = 'Fill in the blank';
+  card.appendChild(badge);
+
+  const status = document.createElement('div');
+  status.className = 'qstatus';
+  status.id = 'status'+idx;
+  status.innerHTML = '<span class="dot"></span><span class="statustext">Not yet answered</span>';
+  card.appendChild(status);
+
+  const qtext = document.createElement('div');
+  qtext.className = 'qtext';
+  qtext.id = 'qtext'+idx;
+  qtext.textContent = q.q;
+  card.appendChild(qtext);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'fill-wrap';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'fill-input';
+  input.id = 'fillinput'+idx;
+  input.placeholder = 'Type your answer...';
+  input.autocomplete = 'off';
+  input.spellcheck = false;
+  input.onkeydown = (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      checkFillAnswer(idx);
+    }
+  };
+
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'check-btn';
+  checkBtn.type = 'button';
+  checkBtn.id = 'checkbtn'+idx;
+  checkBtn.textContent = 'Check answer';
+  checkBtn.onclick = () => checkFillAnswer(idx);
+
+  wrap.appendChild(input);
+  wrap.appendChild(checkBtn);
+  card.appendChild(wrap);
+
+  const feedback = document.createElement('div');
+  feedback.className = 'feedback';
+  feedback.id = 'feedback'+idx;
+  card.appendChild(feedback);
+
+  const reveal = document.createElement('div');
+  reveal.className = 'correct-reveal';
+  reveal.id = 'reveal'+idx;
+  card.appendChild(reveal);
+
+  const foot = document.createElement('div');
+  foot.className = 'qfoot';
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'clear-link';
+  clearBtn.id = 'clear'+idx;
+  clearBtn.type = 'button';
+  clearBtn.textContent = 'Clear my answer';
+  clearBtn.disabled = true;
+  clearBtn.onclick = () => clearAnswer(idx);
+  foot.appendChild(clearBtn);
+  card.appendChild(foot);
+
+  return card;
+}
+
+function buildNoticeCard(q, idx){
+  const card = document.createElement('div');
+  card.className = 'notice-box';
+  card.id = 'q'+idx;
+  card.textContent = q.text;
+  return card;
+}
+
+function renderAll(){
+  let displayNum = 0;
+  QUESTIONS.forEach((q, idx) => {
+    let card;
+    if(q.type === 'notice'){
+      card = buildNoticeCard(q, idx);
+    } else {
+      displayNum++;
+      if(q.type === 'match'){
+        card = buildMatchCard(q, idx, displayNum);
+      } else if(q.type === 'fill'){
+        card = buildFillCard(q, idx, displayNum);
+      } else {
+        card = buildMCQCard(q, idx, displayNum);
+      }
+    }
+    root.appendChild(card);
+  });
+  const answerableCount = QUESTIONS.filter(q => q.type !== 'notice').length;
+  document.getElementById('totalCount').textContent = answerableCount;
+}
+
+/* ======================= ANSWER LOGIC ======================= */
+function selectAnswer(idx, oi){
+  const q = QUESTIONS[idx];
+  if(state.answers[idx] && state.answers[idx].locked) return;
+  const isCorrect = (oi === q.correct);
+  state.answers[idx] = {selected: oi, correct: isCorrect, locked:true};
+
+  // lock all radios, style options
+  q.options.forEach((opt, i) => {
+    const row = document.getElementById('opt'+idx+'_'+i);
+    const radio = document.getElementById('radio'+idx+'_'+i);
+    radio.disabled = true;
+    row.classList.add('disabled');
+    row.classList.remove('correct-answer','wrong-answer');
+    if(i === q.correct) row.classList.add('correct-answer');
+    if(i === oi && oi !== q.correct) row.classList.add('wrong-answer');
+  });
+
+  showFeedback(idx, isCorrect);
+  updateStatus(idx, isCorrect);
+  document.getElementById('clear'+idx).disabled = false;
+  updateNavTile(idx);
+  recomputeScore();
+  persistState();
+}
+
+function selectMatchAnswer(idx, li, value){
+  const q = QUESTIONS[idx];
+  if(!state.answers[idx]) state.answers[idx] = {selections:{}, locked:false};
+  const rec = state.answers[idx];
+  if(rec.locked) return;
+  rec.selections[li] = value === '' ? null : parseInt(value,10);
+
+  // check if all filled
+  const allFilled = q.left.every((_, i) => rec.selections[i] !== undefined && rec.selections[i] !== null);
+  if(allFilled){
+    let allCorrect = true;
+    q.left.forEach((_, i) => {
+      const sel = document.getElementById('matchsel'+idx+'_'+i);
+      const correctVal = i; // right[i] corresponds to left[i]
+      const chosen = rec.selections[i];
+      if(chosen === correctVal){
+        sel.classList.add('correct-answer');
+        sel.classList.remove('wrong-answer');
+      } else {
+        sel.classList.add('wrong-answer');
+        sel.classList.remove('correct-answer');
+        allCorrect = false;
+      }
+      sel.disabled = true;
+    });
+    rec.locked = true;
+    rec.correct = allCorrect;
+    showFeedback(idx, allCorrect);
+    updateStatus(idx, allCorrect);
+    document.getElementById('clear'+idx).disabled = false;
+    updateNavTile(idx);
+    recomputeScore();
+    persistState();
+  }
+}
+
+function checkFillAnswer(idx){
+  const q = QUESTIONS[idx];
+  if(state.answers[idx] && state.answers[idx].locked) return;
+
+  const input = document.getElementById('fillinput'+idx);
+  const given = input.value.trim();
+  if(given === '') { input.focus(); return; }
+
+  const isCorrect = given.toLowerCase() === String(q.answer).trim().toLowerCase();
+  state.answers[idx] = {selected: given, correct: isCorrect, locked:true};
+
+  input.disabled = true;
+  input.classList.remove('correct-answer','wrong-answer');
+  input.classList.add(isCorrect ? 'correct-answer' : 'wrong-answer');
+  document.getElementById('checkbtn'+idx).disabled = true;
+
+  const reveal = document.getElementById('reveal'+idx);
+  reveal.textContent = isCorrect ? '' : ('Correct answer: ' + q.answer);
+
+  showFeedback(idx, isCorrect);
+  updateStatus(idx, isCorrect);
+  document.getElementById('clear'+idx).disabled = false;
+  updateNavTile(idx);
+  recomputeScore();
+  persistState();
+}
+
+function showFeedback(idx, isCorrect){
+  const fb = document.getElementById('feedback'+idx);
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.textContent = isCorrect ? '✔ Correct answer!' : '✘ Incorrect answer.';
+}
+
+function updateStatus(idx, isCorrect){
+  const status = document.getElementById('status'+idx);
+  status.className = 'qstatus answered ' + (isCorrect ? 'correct' : 'wrong');
+  status.querySelector('.statustext').textContent = 'Answered';
+}
+
+function clearAnswer(idx){
+  const q = QUESTIONS[idx];
+  delete state.answers[idx];
+
+  const status = document.getElementById('status'+idx);
+  status.className = 'qstatus';
+  status.querySelector('.statustext').textContent = 'Not yet answered';
+
+  const fb = document.getElementById('feedback'+idx);
+  fb.className = 'feedback';
+  fb.textContent = '';
+
+  if(q.type === 'match'){
+    q.left.forEach((_, li) => {
+      const sel = document.getElementById('matchsel'+idx+'_'+li);
+      sel.value = '';
+      sel.disabled = false;
+      sel.classList.remove('correct-answer','wrong-answer');
+    });
+  } else if(q.type === 'fill'){
+    const input = document.getElementById('fillinput'+idx);
+    input.value = '';
+    input.disabled = false;
+    input.classList.remove('correct-answer','wrong-answer');
+    document.getElementById('checkbtn'+idx).disabled = false;
+    const reveal = document.getElementById('reveal'+idx);
+    if(reveal) reveal.textContent = '';
+  } else {
+    q.options.forEach((opt, i) => {
+      const row = document.getElementById('opt'+idx+'_'+i);
+      const radio = document.getElementById('radio'+idx+'_'+i);
+      radio.checked = false;
+      radio.disabled = false;
+      row.classList.remove('disabled','correct-answer','wrong-answer');
+    });
+  }
+  document.getElementById('clear'+idx).disabled = true;
+  updateNavTile(idx);
+  recomputeScore();
+  persistState();
+}
+
+function recomputeScore(){
+  let answered = 0, score = 0;
+  Object.values(state.answers).forEach(a => {
+    if(a.locked){ answered++; if(a.correct) score++; }
+  });
+  document.getElementById('answeredCount').textContent = answered;
+  document.getElementById('scoreCount').textContent = score;
+}
+
+function rehydrateFromState(){
+  QUESTIONS.forEach((q, idx) => {
+    if(state.flagged[idx]){
+      const fb = document.getElementById('flagbtn'+idx);
+      if(fb) fb.classList.add('flagged');
+      const tile0 = document.getElementById('navtile'+idx);
+      if(tile0) tile0.classList.add('flagged');
+    }
+
+    const a = state.answers[idx];
+    if(!a || !a.locked) return;
+
+    if(q.type === 'match'){
+      q.left.forEach((_, li) => {
+        const sel = document.getElementById('matchsel'+idx+'_'+li);
+        const chosen = a.selections ? a.selections[li] : undefined;
+        sel.value = (chosen === null || chosen === undefined) ? '' : chosen;
+        sel.disabled = true;
+        sel.classList.add(chosen === li ? 'correct-answer' : 'wrong-answer');
+      });
+    } else if(q.type === 'fill'){
+      const input = document.getElementById('fillinput'+idx);
+      input.value = a.selected || '';
+      input.disabled = true;
+      input.classList.add(a.correct ? 'correct-answer' : 'wrong-answer');
+      document.getElementById('checkbtn'+idx).disabled = true;
+      const reveal = document.getElementById('reveal'+idx);
+      if(reveal) reveal.textContent = a.correct ? '' : ('Correct answer: ' + q.answer);
+    } else {
+      const radio = document.getElementById('radio'+idx+'_'+a.selected);
+      if(radio) radio.checked = true;
+      q.options.forEach((opt, i) => {
+        const row = document.getElementById('opt'+idx+'_'+i);
+        const rdo = document.getElementById('radio'+idx+'_'+i);
+        rdo.disabled = true;
+        row.classList.add('disabled');
+        if(i === q.correct) row.classList.add('correct-answer');
+        if(i === a.selected && a.selected !== q.correct) row.classList.add('wrong-answer');
+      });
+    }
+
+    showFeedback(idx, a.correct);
+    updateStatus(idx, a.correct);
+    const clearBtn = document.getElementById('clear'+idx);
+    if(clearBtn) clearBtn.disabled = false;
+    updateNavTile(idx);
+  });
+  recomputeScore();
+}
+
+/* ======================= TRANSLATION ======================= */
+function toggleTranslate(idx){
+  const q = QUESTIONS[idx];
+  const isOn = !state.translated[idx];
+  state.translated[idx] = isOn;
+
+  const btn = document.querySelectorAll('#q'+idx+' .icon-btn')[0];
+  btn.classList.toggle('active', isOn);
+
+  const qtext = document.getElementById('qtext'+idx);
+  qtext.textContent = isOn ? tr(q.q) : q.q;
+  qtext.classList.toggle('rtl-block', isOn);
+
+  if(q.type === 'match'){
+    q.left.forEach((leftText, li) => {
+      const td = document.getElementById('matchleft'+idx+'_'+li);
+      td.textContent = isOn ? tr(leftText) : leftText;
+      td.classList.toggle('rtl-block', isOn);
+      const sel = document.getElementById('matchsel'+idx+'_'+li);
+      // translate each option in the select
+      Array.from(sel.options).forEach(opt => {
+        if(opt.value === '') { opt.textContent = isOn ? '-- اختر --' : '-- Choose --'; return; }
+        const rightIdx = parseInt(opt.value,10);
+        const original = q.right[rightIdx];
+        opt.textContent = isOn ? tr(original) : original;
+      });
+      sel.classList.toggle('rtl-block', isOn);
+    });
+  } else if(q.type === 'fill' || q.type === 'notice'){
+    // لا يوجد خيارات (options) لهذه الأنواع؛ نص السؤال تُرجم أعلاه فقط
+  } else {
+    q.options.forEach((opt, oi) => {
+      const label = document.getElementById('optlabel'+idx+'_'+oi);
+      const span = label.querySelector('.opttext');
+      span.textContent = isOn ? tr(opt) : opt;
+      label.classList.toggle('rtl-block', isOn);
+    });
+  }
+}
+
+/* ======================= QUESTION NAVIGATOR ======================= */
+function buildNavGrid(){
+  const grid = document.getElementById('navGrid');
+  grid.innerHTML = '';
+  let displayNum = 0;
+  QUESTIONS.forEach((q, idx) => {
+    if(q.type === 'notice') return;
+    displayNum++;
+    const tile = document.createElement('div');
+    tile.className = 'nav-tile';
+    tile.id = 'navtile' + idx;
+    tile.textContent = displayNum;
+    tile.onclick = () => {
+      closeNavPanel();
+      const target = document.getElementById('q' + idx);
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+    grid.appendChild(tile);
+  });
+}
+
+function updateNavTile(idx){
+  const tile = document.getElementById('navtile' + idx);
+  if (!tile) return;
+  tile.classList.remove('answered-correct', 'answered-wrong');
+  const a = state.answers[idx];
+  if (a && a.locked) {
+    tile.classList.add(a.correct ? 'answered-correct' : 'answered-wrong');
+  }
+}
+
+function openNavPanel(){
+  document.getElementById('navPanel').classList.add('open');
+  document.getElementById('navOverlay').classList.add('open');
+  document.getElementById('navToggleBtn').classList.add('shifted');
+}
+function closeNavPanel(){
+  document.getElementById('navPanel').classList.remove('open');
+  document.getElementById('navOverlay').classList.remove('open');
+  document.getElementById('navToggleBtn').classList.remove('shifted');
+}
+document.getElementById('navToggleBtn').onclick = function(){
+  const panel = document.getElementById('navPanel');
+  if (panel.classList.contains('open')) closeNavPanel();
+  else openNavPanel();
+};
+document.getElementById('navOverlay').onclick = closeNavPanel;
+
+/* ======================= TOP CONTROLS ======================= */
+document.getElementById('hideBtn').onclick = function(){
+  const box = document.getElementById('timerBox');
+  if(box.style.visibility === 'hidden'){
+    box.style.visibility = 'visible';
+    this.textContent = 'Hide';
+  } else {
+    box.style.visibility = 'hidden';
+    this.textContent = 'Show';
+  }
+};
+
+function finishAttempt(){
+  let answered = 0, score = 0, total = 0;
+  QUESTIONS.forEach((q,idx) => {
+    if(q.type === 'notice') return;
+    total++;
+    const a = state.answers[idx];
+    if(a && a.locked){ answered++; if(a.correct) score++; }
+  });
+  alert('Finished!\nAnswered: ' + answered + ' / ' + total + '\nScore: ' + score + ' / ' + total);
+}
+document.getElementById('finishBtn').onclick = finishAttempt;
+document.getElementById('finishBtnPanel').onclick = finishAttempt;
+
+document.getElementById('restartBtn').onclick = function(){
+  if(!confirm('This will erase all your answers and restart the 2h30m timer. Continue? / سيتم مسح كل إجاباتك وإعادة المؤقت من جديد، متابعة؟')) return;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+};
+
+/* ======================= INIT ======================= */
+document.title = EXAM_CONFIG.pageTitle;
+document.getElementById('brandText').innerHTML = EXAM_CONFIG.brandHtml;
+document.getElementById('footerText').textContent = EXAM_CONFIG.footerText;
+renderAll();
+buildNavGrid();
+rehydrateFromState();
+tickTimer();
+timerInterval = setInterval(tickTimer, 1000);
+</script>
+</body>
+</html>
